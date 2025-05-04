@@ -1,16 +1,528 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="es" class="scroll-smooth">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
-  <title>replit</title>
-  <link href="style.css" rel="stylesheet" type="text/css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page Creador Elite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos personalizados y configuración de Tailwind */
+        body {
+            font-family: 'Inter', sans-serif;
+            @apply bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300;
+        }
+
+        /* Efecto de luz pulsante para el CTA */
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 10px 0px rgba(96, 165, 250, 0.7); } /* azul-400 */
+            50% { box-shadow: 0 0 25px 10px rgba(96, 165, 250, 0.3); }
+        }
+        .cta-pulse {
+            animation: pulse 2s infinite;
+        }
+        .dark .cta-pulse { /* Adaptar pulso para tema oscuro si es necesario */
+             animation: pulse 2s infinite; /* Podría usar otro color si se desea */
+        }
+
+        /* Estilos para video de fondo */
+        #background-video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -10;
+            transform: translateX(-50%) translateY(-50%);
+            background-size: cover;
+            transition: 1s opacity;
+            opacity: 1.0; /* Opacidad inicial para superponer contenido */
+        }
+
+        /* Estilos para Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+            transform: translateY(20px);
+            z-index: 1000;
+            font-size: 0.9rem;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .toast-success {
+            background-color: #34D399; /* emerald-400 */
+            color: #065F46; /* emerald-800 */
+        }
+        .toast-warning {
+            background-color: #FBBF24; /* amber-400 */
+            color: #92400E; /* amber-800 */
+        }
+
+        /* Estilos para controles de audio */
+        #audio-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 8px 12px;
+            border-radius: 999px; /* Pill shape */
+        }
+        #audio-controls button, #audio-controls input {
+             background: none;
+             border: none;
+             color: white;
+             cursor: pointer;
+        }
+         #audio-controls input[type="range"] {
+             width: 80px;
+             height: 5px;
+             cursor: pointer;
+             accent-color: white; /* Color del slider */
+         }
+
+         /* Estilos para modo oscuro */
+         .dark #background-video {
+             opacity: 0.2; /* Menos opacidad en modo oscuro */
+         }
+         .dark #audio-controls {
+             background-color: rgba(255, 255, 255, 0.1);
+         }
+
+         /* Parallax simple (se puede mejorar con JS si es necesario) */
+         .parallax-section {
+            background-attachment: fixed; /* Efecto parallax básico */
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+         }
+    </style>
 </head>
+<body class="overflow-x-hidden">
 
-<body>
-  Hello world
-  <script src="script.js"></script>
+    <div id="toast-container"></div>
+
+    <video autoplay muted loop id="background-video" 
+      <source src="Ratdance360.mp4" type="video/mp4">
+        </video>
+
+    <audio id="background-audio" loop muted preload="auto">
+      <source src="rat-dance-music.mp3" type="audio/mpeg">
+        </audio>
+    <div id="audio-controls">
+        <button id="play-pause-btn"><i class="fas fa-play"></i></button>
+        <button id="mute-btn"><i class="fas fa-volume-high"></i></button>
+        <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="1">
+    </div>
+  
+    <button id="theme-toggle" class="fixed top-4 right-4 z-50 p-2 rounded-full bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-md transition-colors duration-300">
+        <i class="fas fa-sun"></i> </button>
+
+    <section id="hero" class="relative min-h-screen flex flex-col items-center justify-center text-center px-4 overflow-hidden">
+        <div class="absolute inset-0 bg-black opacity-20 dark:opacity-30 z-0"></div> <div class="relative z-10" data-aos="fade-up">
+            <img src="sin texto.PNG" alt="Logo" alt="Logo Creador" class="w-32 h-32 md:w-40 md:h-40 rounded-full mx-auto mb-6 border-4 border-blue-400 dark:border-blue-500 shadow-lg" loading="lazy">
+            <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-4 text-white tracking-tight">
+                 YOFAE
+            </h1>
+            <p class="text-lg md:text-xl lg:text-2xl mb-8 text-gray-200 dark:text-gray-300 max-w-3xl mx-auto">
+                Únete a la comunidad más exclusiva. Contenido épico, experiencias inolvidables.
+            </p>
+            <a href="#sociales" class="cta-pulse inline-block bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold text-lg md:text-xl py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105">
+                ¡Sígueme y Únete! <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+         <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10 text-white animate-bounce">
+             <i class="fas fa-chevron-down text-2xl"></i>
+        </div>
+    
+    </section>
+
+    <section id="sobre-mi" class="py-20 px-4 bg-white dark:bg-gray-800 parallax-section" data-aos="fade-in">
+        <div class="absolute inset-0 z-0">
+            <video autoplay muted loop class="w-full h-full object-cover">
+                <source src="super-mario.3840x2160.mp4" type="video/mp4">
+                <img src="imagen-de-cambio.jpg" alt="Fallback Image">
+            </video>
+        </div>
+        <div class="container mx-auto max-w-4xl text-center relative z-10 bg-white dark:bg-gray-800 bg-opacity-80 dark:bg-opacity-80 p-10 rounded-lg shadow-xl">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6 text-gray-900 dark:text-white">Conóceme Mejor</h2>
+            <img src="Logo Moderno con Personaje y Perro.png" alt="Logo" class="w-48 h-48 rounded-full mx-auto mb-6 shadow-md object-cover" loading="lazy" data-aos="zoom-in">
+            <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+
+                
+            <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+                Soy Yofae, apasionado por Gaming, Vlogs, Entertaiment, etc. Mi misión es entretener, inspirar y construir una comunidad fuerte. Aquí encontrarás contenido de alta calidad, momentos divertidos y una conexión auténtica. ¡Gracias por ser parte de esta aventura!
+            </p>
+        </div>
+    </section>
+
+    <section id="sociales" class="py-20 px-4 bg-gray-100 dark:bg-gray-900">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-12 text-gray-900 dark:text-white" data-aos="fade-up">Conéctate Conmigo</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 md:gap-8 max-w-5xl mx-auto mb-12" data-aos="fade-up" data-aos-delay="100">
+                
+                <a href="https://www.youtube.com/@Yofae?sub_confirmation=1" target="_blank" class="social-link group flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl dark:hover:bg-gray-700 transition-all duration-300 transform hover:-translate-y-1">
+                    <i class="fab fa-youtube text-4xl text-red-600 mb-2 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-semibold text-gray-800 dark:text-gray-200">@Yofae</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400 follower-count" data-target="0">0</span> Seguidores
+                </a>
+                <a href="https://www.youtube.com/@YofaePlay?sub_confirmation=1" target="_blank" class="social-link group flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl dark:hover:bg-gray-700 transition-all duration-300 transform hover:-translate-y-1">
+                    <i class="fab fa-youtube text-4xl text-red-600 mb-2 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-semibold text-gray-800 dark:text-gray-200">@YofaePlay</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400 follower-count" data-target="0">0</span> Seguidores
+                </a>
+                 <a href="https://www.youtube.com/@ElRandomdeYofae?sub_confirmation=1" target="_blank" class="social-link group flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl dark:hover:bg-gray-700 transition-all duration-300 transform hover:-translate-y-1">
+                    <i class="fab fa-youtube text-4xl text-red-600 mb-2 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-semibold text-gray-800 dark:text-gray-200">@ElRandomdeYofae</span>
+                     <span class="text-sm text-gray-500 dark:text-gray-400 follower-count" data-target="91">0</span> Seguidores
+                </a>
+                <a href="#" target="_blank" class="social-link group flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl dark:hover:bg-gray-700 transition-all duration-300 transform hover:-translate-y-1">
+                    <i class="fab fa-tiktok text-4xl text-black dark:text-white mb-2 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-semibold text-gray-800 dark:text-gray-200">proximamente</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400 follower-count" data-target="0">0</span> Seguidores
+                </a>
+                <a href="https://www.tiktok.com/@elmundodeyofae?is_from_webapp=1&sender_device=pc" target="_blank" class="social-link group flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl dark:hover:bg-gray-700 transition-all duration-300 transform hover:-translate-y-1">
+                    <i class="fab fa-tiktok text-4xl text-black dark:text-white mb-2 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-semibold text-gray-800 dark:text-gray-200">@elmundodeyofae</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400 follower-count" data-target="72">0</span> Seguidores
+                </a>
+                <a href="#" target="_blank" class="social-link group flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl dark:hover:bg-gray-700 transition-all duration-300 transform hover:-translate-y-1">
+                    <i class="fab fa-twitter text-4xl text-sky-500 mb-2 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-semibold text-gray-800 dark:text-gray-200">X / Twitter:
+                        proximamente</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400 follower-count" data-target="0">0</span> Seguidores
+                </a>
+                <a href="#" target="_blank" class="social-link group flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl dark:hover:bg-gray-700 transition-all duration-300 transform hover:-translate-y-1">
+                    <i class="fab fa-facebook-f text-4xl text-blue-700 mb-2 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-semibold text-gray-800 dark:text-gray-200">Facebook:
+                        proximamente</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400 follower-count" data-target="0">0</span> Seguidores
+                </a>
+                <a href="https://www.twitch.tv/yofaeplay" target="_blank" class="social-link group flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl dark:hover:bg-gray-700 transition-all duration-300 transform hover:-translate-y-1">
+                    <i class="fab fa-twitch text-4xl text-purple-600 mb-2 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-semibold text-gray-800 dark:text-gray-200">yofaeplay</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400 follower-count" data-target="0">0</span> Seguidores
+                </a>
+                <a href="https://kick.com/yofae" target="_blank" class="social-link group flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl dark:hover:bg-gray-700 transition-all duration-300 transform hover:-translate-y-1">
+                    <i class="fa-brands fa-kickstarter-k text-4xl text-green-500 mb-2 group-hover:scale-110 transition-transform"></i> <span class="font-semibold text-gray-800 dark:text-gray-200">Yofae</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400 follower-count" data-target="26">0</span> Seguidores
+                </a>
+            </div>
+
+            <button id="follow-all-btn" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold text-lg py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105" data-aos="fade-up" data-aos-delay="200">
+                <i class="fas fa-heart mr-2"></i> Seguir Todo
+            </button>
+        </div>
+    </section>
+
+    <section id="testimonios" class="py-20 px-4 bg-white dark:bg-gray-800">
+        <div class="container mx-auto max-w-5xl text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-12 text-gray-900 dark:text-white" data-aos="fade-up">Lo que dice la Comunidad</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-gray-100 dark:bg-gray-700 p-6 rounded-lg shadow-md" data-aos="fade-up" data-aos-delay="100">
+                    <i class="fas fa-quote-left text-2xl text-blue-500 dark:text-blue-400 mb-4"></i>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4 italic">"El mejor contenido que he visto en años. Siempre me saca una sonrisa y aprendo algo nuevo."</p>
+                    <p class="font-semibold text-gray-800 dark:text-gray-100">- Fan Entusiasta</p>
+                </div>
+                <div class="bg-gray-100 dark:bg-gray-700 p-6 rounded-lg shadow-md flex flex-col items-center justify-center" data-aos="fade-up" data-aos-delay="200">
+                     <i class="fas fa-users text-4xl text-green-500 dark:text-green-400 mb-4"></i>
+                    <p class="text-4xl font-bold text-gray-800 dark:text-gray-100 mb-2 follower-count" data-target="189">0+</p> <p class="text-gray-600 dark:text-gray-400 font-semibold">Suscriptores Totales</p>
+                </div>
+                <div class="bg-gray-100 dark:bg-gray-700 p-6 rounded-lg shadow-md" data-aos="fade-up" data-aos-delay="300">
+                    <i class="fas fa-quote-left text-2xl text-blue-500 dark:text-blue-400 mb-4"></i>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4 italic">"La energía y la dedicación son increíbles. ¡Una inspiración para todos!"</p>
+                    <p class="font-semibold text-gray-800 dark:text-gray-100">- Seguidor Leal</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-200 dark:bg-gray-800 py-8 text-center text-gray-600 dark:text-gray-400">
+        <div class="container mx-auto">
+            <p>&copy; <span id="current-year"></span> [Nombre del Creador]. Todos los derechos reservados.</p>
+            <p class="text-sm mt-2">Diseñado con <i class="fas fa-heart text-red-500"></i> para la comunidad.Creditos: VRTOK</p>
+            </div>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_TRACKING_ID"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      // Reemplaza GA_TRACKING_ID con tu ID real de Google Analytics
+      gtag('config', 'GA_TRACKING_ID');
+    </script>
+    <script>
+      // --- Reproducir audio tras primer clic en la página ---
+      document.body.addEventListener('click', () => {
+        const audio = document.getElementById('background-audio');
+        if (audio.paused) {
+          audio.muted = false; // Desactivar mute
+          audio.play().catch(error => {
+            console.error("Error al reproducir:", error);
+            showToast('Haz clic en la página para activar el audio', 'warning', 5000);
+          });
+        }
+      }, { once: true }); // Ejecutar solo una vez
+    </script>
+    <script>
+        // Inicializar AOS
+        AOS.init({
+            duration: 800, // Duración de la animación
+            once: false, // Animación se repite al scrollear arriba/abajo
+            offset: 50, // Offset (en px) desde el borde de la ventana
+        });
+
+        // --- Funcionalidad Tema Claro/Oscuro ---
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const htmlElement = document.documentElement; // Selecciona el elemento <html>
+        const themeIcon = themeToggleBtn.querySelector('i');
+
+        // Cargar preferencia de tema desde localStorage
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme === 'dark') {
+            htmlElement.classList.add('dark');
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        } else {
+             themeIcon.classList.remove('fa-moon');
+             themeIcon.classList.add('fa-sun');
+        }
+
+
+        themeToggleBtn.addEventListener('click', () => {
+            htmlElement.classList.toggle('dark');
+            const isDarkMode = htmlElement.classList.contains('dark');
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+
+            // Cambiar icono
+            if (isDarkMode) {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            } else {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            }
+        });
+
+
+        // --- Funcionalidad de Audio ---
+        const audio = document.getElementById('background-audio');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const muteBtn = document.getElementById('mute-btn');
+        const volumeSlider = document.getElementById('volume-slider');
+        const playIcon = '<i class="fas fa-play"></i>';
+        const pauseIcon = '<i class="fas fa-pause"></i>';
+        const volumeHighIcon = '<i class="fas fa-volume-high"></i>';
+        const volumeMuteIcon = '<i class="fas fa-volume-xmark"></i>';
+
+        // Intentar reproducir al cargar (puede fallar por políticas del navegador)
+        // Se recomienda iniciar la reproducción tras una interacción del usuario
+        // audio.play().catch(error => console.log("Autoplay prevenido:", error));
+        // if (!audio.paused) playPauseBtn.innerHTML = pauseIcon;
+
+        // Cargar estado de mute y volumen desde localStorage
+        const savedMute = localStorage.getItem('audioMuted');
+        const savedVolume = localStorage.getItem('audioVolume');
+
+        if (savedMute === 'true') {
+            audio.muted = true;
+            muteBtn.innerHTML = volumeMuteIcon;
+            volumeSlider.value = 0; // Visualmente poner a 0 si está muteado
+        } else {
+            audio.muted = false;
+            muteBtn.innerHTML = volumeHighIcon;
+            if (savedVolume !== null) {
+                audio.volume = parseFloat(savedVolume);
+                volumeSlider.value = audio.volume;
+            } else {
+                 volumeSlider.value = audio.volume; // Valor por defecto (1)
+            }
+        }
+
+
+        playPauseBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play().then(() => {
+                    playPauseBtn.innerHTML = pauseIcon;
+                }).catch(error => {
+                    console.error("Error al reproducir audio:", error);
+                    // Mostrar un mensaje al usuario si la reproducción falla
+                    showToast('Haz clic en la página para activar el audio', 'warning', 5000);
+                });
+            } else {
+                audio.pause();
+                playPauseBtn.innerHTML = playIcon;
+            }
+        });
+
+        muteBtn.addEventListener('click', () => {
+            audio.muted = !audio.muted;
+            if (audio.muted) {
+                muteBtn.innerHTML = volumeMuteIcon;
+                volumeSlider.value = 0; // Actualizar slider visualmente
+            } else {
+                muteBtn.innerHTML = volumeHighIcon;
+                volumeSlider.value = audio.volume; // Restaurar valor del slider
+            }
+             localStorage.setItem('audioMuted', audio.muted);
+        });
+
+        volumeSlider.addEventListener('input', () => {
+            audio.volume = volumeSlider.value;
+             // Si ajusta el volumen, quitar el mute
+            if (audio.volume > 0 && audio.muted) {
+                 audio.muted = false;
+                 muteBtn.innerHTML = volumeHighIcon;
+                 localStorage.setItem('audioMuted', 'false');
+            } else if (audio.volume == 0 && !audio.muted) {
+                 audio.muted = true;
+                 muteBtn.innerHTML = volumeMuteIcon;
+                 localStorage.setItem('audioMuted', 'true');
+            }
+             localStorage.setItem('audioVolume', audio.volume);
+        });
+
+         // Listener para intentar reproducir en la primera interacción
+         // document.body.addEventListener('click', () => {
+         //    if (audio.paused) {
+         //        audio.play().then(() => playPauseBtn.innerHTML = pauseIcon).catch(e => console.log("Aún no se puede reproducir"));
+         //    }
+         // }, { once: true }); // Solo se ejecuta una vez
+
+
+        // Funcionalidad Botón "Seguir Todo"
+        // --- Funcionalidad Botón "Seguir Todo" ---
+        const followAllBtn = document.getElementById('follow-all-btn');
+
+        followAllBtn.addEventListener('click', () => {
+            // AÑADE EL SHOWTOAST AQUÍ
+            showToast(
+                '⚠ Algunos navegadores pueden bloquear múltiples pestañas. Asegúrate de permitir ventanas emergentes para este sitio.',
+                'warning',
+                25000
+            );
+            // Define las 10 URLs que deseas abrir
+            const urlsToOpen = [
+                'https://www.youtube.com/@Yofae?sub_confirmation=1',
+                'https://www.youtube.com/@YofaePlay?sub_confirmation=1',
+                'https://www.youtube.com/@ElRandomdeYofae?sub_confirmation=1',
+                'https://www.tiktok.com/@elmundodeyofae?is_from_webapp=1&sender_device=pc',
+                'https://www.twitch.tv/yofaeplay',
+                'https://kick.com/yofae',
+                'https://ejemplo6.com'
+            ];
+
+            urlsToOpen.forEach((url, index) => {
+                // Usa setTimeout para evitar que el navegador bloquee las ventanas
+                setTimeout(() => {
+                    try {
+                        const newWindow = window.open(url, '_blank');
+                        if (!newWindow) {
+                            throw new Error('Bloqueado por el navegador');
+                        }
+                        showToast(`✓ Abriendo URL ${index + 1}...`, 'success');
+                    } catch (e) {
+                        console.error(`Error al abrir URL ${index + 1}:`, e);
+                        showToast(`⚠ No se pudo abrir la URL ${index + 1}.`, 'warning');
+                    }
+                }, index * 100); // 100 ms de retraso entre cada apertura
+            });
+        });
+
+        // --- Funcionalidad Toast Notifications ---
+        const toastContainer = document.getElementById('toast-container');
+
+        function showToast(message, type = 'success', duration = 3000) {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+
+            // Trigger reflow to enable transition
+            toast.offsetHeight;
+
+            // Show toast
+            toast.classList.add('show');
+
+            // Hide toast after duration
+            setTimeout(() => {
+                toast.classList.remove('show');
+                // Remove toast from DOM after transition ends
+                toast.addEventListener('transitionend', () => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                });
+            }, duration);
+        }
+
+
+        // --- Animación Contador de Seguidores (Simulado) ---
+        const followerCounts = document.querySelectorAll('.follower-count');
+
+        const animateCount = (element) => {
+            const target = parseInt(element.getAttribute('data-target'), 10);
+            const duration = 1500; // Duración de la animación en ms
+            const stepTime = Math.abs(Math.floor(duration / target)) || 1; // Evitar división por cero
+            let current = 0;
+            const step = Math.ceil(target / (duration / stepTime)); // Incremento por paso
+
+            const timer = setInterval(() => {
+                current += step;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                // Formatear número con comas
+                element.textContent = current.toLocaleString('es-ES');
+            }, stepTime);
+        };
+
+        // Usar Intersection Observer para iniciar la animación cuando el elemento es visible
+        const observerOptions = {
+            root: null, // viewport
+            threshold: 0.1 // 10% visible
+        };
+
+        const observerCallback = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const element = entry.target;
+                    animateCount(element);
+                    observer.unobserve(element); // Dejar de observar una vez animado
+                }
+            });
+        };
+
+        const countObserver = new IntersectionObserver(observerCallback, observerOptions);
+
+        followerCounts.forEach(countElement => {
+            countObserver.observe(countElement);
+        });
+
+
+        // --- Actualizar año en el footer ---
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+    </script>
 </body>
-
 </html>
